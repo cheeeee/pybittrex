@@ -97,6 +97,9 @@ class Client(object):
 
         return self._call(url, params=payload)
 
+    # Account API
+    # -----------
+
     def get_balances(self):
         url = self._build_url('/account/getbalances')
 
