@@ -1,25 +1,7 @@
 import requests
-import hmac
-import hashlib
+import time
 
-from requests.auth import AuthBase
-
-class BittrexAuth(AuthBase):
-    """Sign requests to Market and Private API."""
-    def __init__(self, api_secret):
-        self.api_secret = api_secret
-
-    def __call__(self, request):
-        uri = request.url
-        signature = hmac.HMAC(
-            key=bytes(self.api_secret, 'utf-8'),
-            msg=bytes(uri, 'utf-8'),
-            digestmod=hashlib.sha512
-        ).hexdigest()
-
-        request.headers['apisign'] = signature
-
-        return request
+from pybittrex.auth import BittrexAuth
 
 class Client(object):
     """Create a new session to the Bittrex exchange."""
@@ -36,12 +18,24 @@ class Client(object):
     def _get_api_version(self):
         return self.api_version
 
+    def _get_nonce(self):
+        """Authenticated requests all require a nonce."""
+        return str(round(time.time()))
+
     def _build_url(self, endpoint):
-        """ Helper function to build the full URL """
+        """Helper function to build the full URL."""
         return self.api_base + endpoint
 
     def _call(self, url, params=None):
-        return self.session.get(url, params=params, auth=BittrexAuth(self.api_secret))
+        """ Call the API """
+
+        # figure out if we need to authenticate or not
+        if 'public' in url:
+            auth = None
+        else:
+            auth = BittrexAuth(self.api_secret)
+
+        return self.session.get(url, params=params, auth=auth)
 
     # Public API Functions
     # --------------------
@@ -100,5 +94,12 @@ class Client(object):
         url = self._build_url('/public/getmarkethistory')
 
         payload = {'market': market}
+
+        return self._call(url, params=payload)
+
+    def get_balances(self):
+        url = self._build_url('/account/getbalances')
+
+        payload = {'apikey': self.api_key, 'nonce': self._get_nonce()}
 
         return self._call(url, params=payload)
