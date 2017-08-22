@@ -18,7 +18,7 @@ class BittrexAuth(AuthBase):
         ).hexdigest()
 
         request.headers['apisign'] = signature
-        print(request.headers)
+
         return request
 
 class Client(object):
