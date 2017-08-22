@@ -1,18 +1,28 @@
 import requests
+import hmac
+import hashlib
 
 from requests.auth import AuthBase
 
 class BittrexAuth(AuthBase):
-    """Bittrex authentication to private API's"""
-    def __init__(self):
-        pass
+    """Sign requests to Market and Private API."""
+    def __init__(self, api_secret):
+        self.api_secret = api_secret
 
     def __call__(self, request):
-        request.headers = None
+        uri = request.url
+        signature = hmac.HMAC(
+            key=bytes(self.api_secret, 'utf-8'),
+            msg=bytes(uri, 'utf-8'),
+            digestmod=hashlib.sha512
+        ).hexdigest()
+
+        request.headers['apisign'] = signature
+        print(request.headers)
         return request
 
 class Client(object):
-    """Create a new session to the Bittrex exchange"""
+    """Create a new session to the Bittrex exchange."""
     def __init__(self, api_key, api_secret):
         self.api_version = 'v1.1'
         self.api_base = 'https://bittrex.com/api/%s' % (self.api_version)
@@ -31,7 +41,7 @@ class Client(object):
         return self.api_base + endpoint
 
     def _call(self, url, params=None):
-        return self.session.get(url, params=params)
+        return self.session.get(url, params=params, auth=BittrexAuth(self.api_secret))
 
     # Public API Functions
     # --------------------
