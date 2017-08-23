@@ -15,7 +15,7 @@ class Client(object):
         # create a session object
         self.session = requests.Session()
 
-    def _get_api_version(self):
+    def get_api_version(self):
         return self.api_version
 
     def _get_nonce(self):
