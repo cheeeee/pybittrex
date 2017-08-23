@@ -34,6 +34,8 @@ class Client(object):
             auth = None
         else:
             auth = BittrexAuth(self.api_secret)
+            params['apikey'] = self.api_key
+            params['nonce'] = self._get_nonce()
 
         return self.session.get(url, params=params, auth=auth)
 
@@ -94,6 +96,45 @@ class Client(object):
         url = self._build_url('/public/getmarkethistory')
 
         payload = {'market': market}
+
+        return self._call(url, params=payload)
+
+    # Market API
+    # ----------
+
+    def buy_limit(self, market, qty, price, *args, **kwargs):
+        """ Used to place a buy order in a specific market. Use buylimit to place limit orders. Make sure you have the proper permissions set on your API keys for this call to work."""
+
+        url = self._build_url('/market/buylimit')
+
+        payload = {'market': market, 'quantity': qty, 'rate': price}
+
+        return self._call(url, params=payload)
+
+    def sell_limit(self, market, qty, price, *args, **kwargs):
+        """ Used to place an sell order in a specific market. Use selllimit to place limit orders. Make sure you have the proper permissions set on your API keys for this call to work."""
+
+        url = self._build_url('/market/selllimit')
+
+        payload = {'market': market, 'quantity': qty, 'rate': price}
+
+        return self._call(url, params=payload)
+
+    def market_cancel(self, uuid, *args, **kwargs):
+        """ Used to cancel a buy or sell order."""
+
+        url = self._build_url('/market/cancel')
+
+        payload = {'uuid': uuid}
+
+        return self._call(url, params=payload)
+
+    def get_open_orders(self, market=None, *args, **kwargs):
+        """ Get all orders that you currently have opened. A specific market can be requested."""
+
+        url = self._build_url('/market/getopenorders')
+
+        payload = {'market': market} if market else ''
 
         return self._call(url, params=payload)
 
