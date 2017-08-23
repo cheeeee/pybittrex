@@ -43,8 +43,8 @@ class Client(object):
 
         return self.session.get(url, params=params, auth=auth)
 
-    # Public API Functions
-    # --------------------
+    # Public API
+    # ----------
 
     def get_markets(self):
         """Used to get the open and available trading markets at Bittrex along with other metadata."""
