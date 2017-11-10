@@ -138,7 +138,7 @@ class Client(object):
         """Used to retrieve balances from your account."""
         url = self._build_url('/account/getbalances')
 
-        return self._call(url, params=payload)
+        return self._call(url)
 
     def get_balance(self, currency, *args, **kwargs):
         """Used to retrieve the balance from your account for a specific currency."""
