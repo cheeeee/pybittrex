@@ -186,7 +186,7 @@ class Client(object):
 
         url = self._build_url('/account/getwithdrawalhistory')
 
-        paload = {'currency': currency} if currency else None
+        payload = {'currency': currency} if currency else None
 
         return self._call(url, params=payload)
 
